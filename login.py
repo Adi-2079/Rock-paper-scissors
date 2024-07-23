@@ -1,57 +1,45 @@
-def login():
-    # Get the username and password from the user
+def get_user_credentials():
     username = input("Enter your username: ")
     password = input("Enter your password: ")
+    return username, password
 
-    # Check if the username and password are valid
-    with open("users.txt", "r") as f:
-        for line in f:
-            line = line.strip()  # Remove leading/trailing whitespaces
-            if not line:
-                continue  # Skip empty lines
 
-            try:
-                user, passw = line.split()
-                if username == user and password == passw:
-                    print("Login successful!")
-                    return True
-            except ValueError:
-                print("Invalid user data format in the file.")
-                return False
+def read_users_file():
+    try:
+        with open("users.txt", "r") as f:
+            users = [line.strip().split() for line in f if line.strip()]
+        return users
+    except FileNotFoundError:
+        return []
 
-    # Display an error message
+
+def login():
+    username, password = get_user_credentials()
+    users = read_users_file()
+
+    for user, passw in users:
+        if username == user and password == passw:
+            print("Login successful!")
+            return True
+
     print("Invalid username or password")
     return False
 
 
 def register():
-    # Get the username and password from the user
-    username = input("Enter your username: ")
-    password = input("Enter your password: ")
+    username, password = get_user_credentials()
+    users = read_users_file()
 
-    # Check if the username already exists
-    with open("users.txt", "r") as f:
-        for line in f:
-            line = line.strip()  # Remove leading/trailing whitespaces
-            if not line:
-                continue  # Skip empty lines
+    for user, _ in users:
+        if username == user:
+            print("Username already taken")
+            return False
 
-            try:
-                user, passw = line.split()
-                if username == user:
-                    print("Username already taken")
-                    return False
-            except ValueError:
-                print("Invalid user data format in the file.")
-                return False
-
-    # Write the username and password to the text file
     with open("users.txt", "a") as f:
         f.write(f"{username} {password}\n")
 
     print("Registration successful!")
     return True
-
 
 
 def main():
@@ -66,15 +54,13 @@ def main():
 
         if choice == "1":
             if login():
-                # Perform logged-in operations
                 print("Logged in. Access granted.")
-                break  # Exit the loop after successful login
+                break
         elif choice == "2":
             if register():
-                # Perform post-registration operations
                 print("Registration complete. You can now login.")
         elif choice == "3":
-            break  # Exit the loop if the user chooses to quit
+            break
         else:
             print("Invalid choice. Please try again.")
 
